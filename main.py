@@ -8,7 +8,7 @@ import time
 
 client = discord.AutoShardedClient()
 
-token = input("token: ")
+token = input("Token: ")
 print("Logging In...")
 
 app = QtGui.QApplication(sys.argv)
