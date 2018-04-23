@@ -2,6 +2,7 @@ import sys
 from PyQt4 import QtGui, QtCore
 import asyncio
 import discord
+import pyperclip
 class Window(QtGui.QMainWindow):
 
     def __init__(self,client):
@@ -13,48 +14,46 @@ class Window(QtGui.QMainWindow):
         self.guildid = None
         self.channel = None
         self.channelid = None
+        self.message = None
+        self.messageid = None
+        self.home()
 
+
+    def home(self):
         self.statusBar()
-
         main_menu = self.menuBar()
-        main_menu_client = main_menu.addMenu('Client')
 
+
+        main_menu_client = main_menu.addMenu('Client')
         item = QtGui.QAction("Restart", self)
         main_menu_client.addAction(item)
 
-        self.home()
 
-    def sync(self,coro):
-        asyncio.run_coroutine_threadsafe(coro, asyncio.get_event_loop())
-
-    def select_guild(self):
-        if len(self.guild_list.selectedItems()) > 0:
-            self.guildid = self.guild_list.selectedItems()[0].data(QtCore.Qt.UserRole)
-            self.update_channels()
+        main_menu_server = main_menu.addMenu('Server')
 
 
-    def select_channel(self):
-        if len(self.channel_list.selectedItems()) > 0:
-            self.channelid = self.channel_list.selectedItems()[0].data(QtCore.Qt.UserRole)
-            self.channel = self.guild.get_channel(self.channelid)
-            perms = self.channel.permissions_for(self.guild.get_member(self.client.user.id))
-            if perms.send_messages:
-                self.message_send_btn.setDisabled(False)
-                self.message_entry.setDisabled(False)
-            else:
-                self.message_send_btn.setDisabled(True)
-                self.message_entry.setDisabled(True)
+        main_menu_channel = main_menu.addMenu('Channel')
 
-            self.sync(self.update_messages())
 
-    def home(self):
+        main_menu_message = main_menu.addMenu('Message')
+        item = QtGui.QAction("Copy", self)
+        item.triggered.connect(self.message_copy_content)
+        main_menu_message.addAction(item)
+        item = QtGui.QAction("Copy ID", self)
+        item.triggered.connect(self.message_copy_id)
+        main_menu_message.addAction(item)
+
+        main_menu_member = main_menu.addMenu('Member')
+
+
+
         self.message_send_btn = QtGui.QPushButton("Send", self)
         self.message_send_btn.resize(60,30)
-        self.message_send_btn.move(1140,670)
+        self.message_send_btn.move(980,670)
         self.message_send_btn.clicked.connect(self.send_message)
 
         self.message_entry = QtGui.QLineEdit(self)
-        self.message_entry.resize(800,30)
+        self.message_entry.resize(640,30)
         self.message_entry.move(340,670)
         self.message_entry.returnPressed.connect(self.send_message)
         self.message_entry.setFocus()
@@ -72,11 +71,53 @@ class Window(QtGui.QMainWindow):
         self.channel_list.itemSelectionChanged.connect(self.select_channel)
 
         self.message_list = QtGui.QListWidget(self)
-        self.message_list.resize(860,650)
+        self.message_list.resize(700,650)
         self.message_list.move(340,20)
+        self.message_list.itemSelectionChanged.connect(self.select_message)
         self.message_list.verticalScrollBar().rangeChanged.connect(self.scroll_to_bottom)
 
+        self.member_list = QtGui.QListWidget(self)
+        self.member_list.resize(160,680)
+        self.member_list.move(1040,20)
+        self.member_list.itemSelectionChanged.connect(self.select_member)
+        self.member_list.verticalScrollBar().rangeChanged.connect(self.scroll_to_bottom)
+
+
         self.show()
+
+    def sync(self,coro):
+        asyncio.run_coroutine_threadsafe(coro, asyncio.get_event_loop())
+
+    def select_guild(self):
+        if len(self.guild_list.selectedItems()) > 0:
+            self.guildid = self.guild_list.selectedItems()[0].data(QtCore.Qt.UserRole)
+            self.update_channels()
+            self.update_members()
+
+    def select_message(self):
+        if len(self.message_list.selectedItems()) > 0:
+            self.messageid = self.message_list.selectedItems()[0].data(QtCore.Qt.UserRole).id
+            self.message = self.message_list.selectedItems()[0].data(QtCore.Qt.UserRole)
+
+    def select_member(self):
+        if len(self.message_list.selectedItems()) > 0:
+            self.memberid = self.member_list.selectedItems()[0].data(QtCore.Qt.UserRole).id
+            self.member = self.server.get_member(self.memberid)
+
+
+    def select_channel(self):
+        if len(self.channel_list.selectedItems()) > 0:
+            self.channelid = self.channel_list.selectedItems()[0].data(QtCore.Qt.UserRole)
+            self.channel = self.guild.get_channel(self.channelid)
+            perms = self.channel.permissions_for(self.guild.get_member(self.client.user.id))
+            if perms.send_messages:
+                self.message_send_btn.setDisabled(False)
+                self.message_entry.setDisabled(False)
+            else:
+                self.message_send_btn.setDisabled(True)
+                self.message_entry.setDisabled(True)
+
+            self.sync(self.update_messages())
 
     def update_guilds(self):
         scroll = self.guild_list.verticalScrollBar().value()
@@ -87,6 +128,7 @@ class Window(QtGui.QMainWindow):
             self.guild_list.addItem(item)
 
         self.guild_list.verticalScrollBar().setValue(scroll)
+
 
     def update_channels(self):
         if self.guildid != None:
@@ -106,11 +148,24 @@ class Window(QtGui.QMainWindow):
 
             self.channel_list.verticalScrollBar().setValue(scroll)
 
+    def update_members(self):
+        if self.guildid != None:
+            self.guild = self.client.get_guild(self.guildid)
+            scroll = self.member_list.verticalScrollBar().value()
+            self.member_list.clear()
+            for i in self.guild.members:
+                item = QtGui.QListWidgetItem(str(i))
+                item.setData(QtCore.Qt.UserRole,i.id)
+                self.member_list.addItem(item)
+
+            self.member_list.verticalScrollBar().setValue(scroll)
+
+
     async def update_messages(self):
         if self.channelid != None:
             self.channel = self.guild.get_channel(self.channelid)
             self.message_list.clear()
-            async for msg in self.channel.history(reverse=True):
+            async for msg in self.channel.history(reverse=True, limit=500):
                 item = QtGui.QListWidgetItem(str(msg.author)+": "+str(msg.content))
                 item.setData(QtCore.Qt.UserRole,msg)
                 item.setToolTip(str(msg.created_at))
@@ -132,7 +187,6 @@ class Window(QtGui.QMainWindow):
 
 
     def scroll_to_bottom(self, bypass=False):
-        print(self.message_list.verticalScrollBar().value())
         if abs(self.message_list.verticalScrollBar().value() - self.message_list.verticalScrollBar().maximum()) < 10 or bypass:
             self.message_list.verticalScrollBar().setValue(self.message_list.verticalScrollBar().maximum())
 
@@ -140,6 +194,15 @@ class Window(QtGui.QMainWindow):
         self.sync(self.channel.send(self.message_entry.text()))
         self.message_entry.clear()
         self.message_entry.setFocus()
+
+    def message_copy_content(self):
+        if self.message != None:
+            pyperclip.copy(self.message.content)
+    def message_copy_id(self):
+        if self.message != None:
+            pyperclip.copy(str(self.messageid))
+
+
 
     def ready(self):
         self.update_guilds()

@@ -8,39 +8,25 @@ import time
 
 client = discord.AutoShardedClient()
 
-token = input("Token: ")
-print("Logging In...")
-
-app = QtGui.QApplication(sys.argv)
-window = gui.Window(client)
-
-
-
-
-
 @client.event
 async def on_ready():
     print("Logged In!")
     window.ready()
-
 
 @client.event
 async def on_guild_join(guild):
     if client.is_ready():
         window.update_guilds()
 
-
 @client.event
 async def on_guild_remove(guild):
     if client.is_ready():
         window.update_guilds()
 
-
 @client.event
 async def on_guild_update(before, after):
     if client.is_ready():
         window.update_guilds()
-
 
 @client.event
 async def on_channel_create(channel):
@@ -57,20 +43,27 @@ async def on_channel_update(before,after):
     if client.is_ready():
         window.update_channels()
 
-
 @client.event
 async def on_message(msg):
     window.new_message(msg)
 
-
-
 def run():
     sys.exit(app.exec_())
 
+app = QtGui.QApplication(sys.argv)
+window = gui.Window(client)
+
+token,ok = QtGui.QInputDialog.getText(window, "Token",
+                "Token:", QtGui.QLineEdit.Normal)
 
 
-t = Thread(target=client.run, args=[token])
-t.daemon = True
-t.start()
+if ok:
+    print("Logging In...")
 
-run()
+    t = Thread(target=client.run, args=[token])
+    t.daemon = True
+    t.start()
+
+    run()
+else:
+    sys.exit()
