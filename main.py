@@ -26,30 +26,36 @@ async def on_ready():
 
 @client.event
 async def on_guild_join(guild):
-    window.update_guilds()
+    if client.is_ready():
+        window.update_guilds()
 
 
 @client.event
 async def on_guild_remove(guild):
-    window.update_guilds()
+    if client.is_ready():
+        window.update_guilds()
 
 
 @client.event
 async def on_guild_update(before, after):
-    window.update_guilds()
+    if client.is_ready():
+        window.update_guilds()
 
 
 @client.event
 async def on_channel_create(channel):
-    window.update_channels()
+    if client.is_ready():
+        window.update_channels()
 
 @client.event
 async def on_channel_delete(channel):
-    window.update_channels()
+    if client.is_ready():
+        window.update_channels()
 
 @client.event
 async def on_channel_update(before,after):
-    window.update_channels()
+    if client.is_ready():
+        window.update_channels()
 
 
 @client.event
