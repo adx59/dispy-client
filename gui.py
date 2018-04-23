@@ -60,28 +60,45 @@ class Window(QtGui.QMainWindow):
 
 
         self.guild_list = QtGui.QListWidget(self)
-        self.guild_list.resize(200,700)
-        self.guild_list.move(0,20)
+        self.guild_list.resize(200,650)
+        self.guild_list.move(0,50)
         self.guild_list.itemSelectionChanged.connect(self.select_guild)
 
 
         self.channel_list = QtGui.QListWidget(self)
-        self.channel_list.resize(140,700)
-        self.channel_list.move(200,20)
+        self.channel_list.resize(140,650)
+        self.channel_list.move(200,50)
         self.channel_list.itemSelectionChanged.connect(self.select_channel)
 
         self.message_list = QtGui.QListWidget(self)
-        self.message_list.resize(700,650)
-        self.message_list.move(340,20)
+        self.message_list.resize(700,620)
+        self.message_list.move(340,50)
         self.message_list.itemSelectionChanged.connect(self.select_message)
         self.message_list.verticalScrollBar().rangeChanged.connect(self.scroll_to_bottom)
 
         self.member_list = QtGui.QListWidget(self)
-        self.member_list.resize(160,680)
-        self.member_list.move(1040,20)
+        self.member_list.resize(160,650)
+        self.member_list.move(1040,50)
         self.member_list.itemSelectionChanged.connect(self.select_member)
         self.member_list.verticalScrollBar().rangeChanged.connect(self.scroll_to_bottom)
 
+
+        self.message_label = QtGui.QLabel("None Selected",self)
+        self.message_label.move(340,25)
+        self.message_label.resize(700,25)
+        self.message_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.member_label = QtGui.QLabel("None Selected",self)
+        self.member_label.move(1040,25)
+        self.member_label.resize(160,25)
+        self.member_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.guild_label = QtGui.QLabel("None Selected",self)
+        self.guild_label.move(0,25)
+        self.guild_label.resize(200,25)
+        self.guild_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.channel_label = QtGui.QLabel("None Selected",self)
+        self.channel_label.move(200,25)
+        self.channel_label.resize(140,25)
+        self.channel_label.setAlignment(QtCore.Qt.AlignCenter)
 
         self.show()
 
@@ -91,6 +108,8 @@ class Window(QtGui.QMainWindow):
     def select_guild(self):
         if len(self.guild_list.selectedItems()) > 0:
             self.guildid = self.guild_list.selectedItems()[0].data(QtCore.Qt.UserRole)
+            self.guild = self.client.get_guild(self.guildid)
+            self.guild_label.setText(self.guild.name)
             self.update_channels()
             self.update_members()
 
@@ -98,17 +117,19 @@ class Window(QtGui.QMainWindow):
         if len(self.message_list.selectedItems()) > 0:
             self.messageid = self.message_list.selectedItems()[0].data(QtCore.Qt.UserRole).id
             self.message = self.message_list.selectedItems()[0].data(QtCore.Qt.UserRole)
+            self.message_label.setText(str(self.message.content))
 
     def select_member(self):
-        if len(self.message_list.selectedItems()) > 0:
-            self.memberid = self.member_list.selectedItems()[0].data(QtCore.Qt.UserRole).id
-            self.member = self.server.get_member(self.memberid)
-
+        if len(self.member_list.selectedItems()) > 0:
+            self.memberid = self.member_list.selectedItems()[0].data(QtCore.Qt.UserRole)
+            self.member = self.guild.get_member(self.memberid)
+            self.member_label.setText(self.member.name+"#"+str(self.member.discriminator))
 
     def select_channel(self):
         if len(self.channel_list.selectedItems()) > 0:
             self.channelid = self.channel_list.selectedItems()[0].data(QtCore.Qt.UserRole)
             self.channel = self.guild.get_channel(self.channelid)
+            self.channel_label.setText(self.channel.name)
             perms = self.channel.permissions_for(self.guild.get_member(self.client.user.id))
             if perms.send_messages:
                 self.message_send_btn.setDisabled(False)
@@ -153,7 +174,7 @@ class Window(QtGui.QMainWindow):
             self.guild = self.client.get_guild(self.guildid)
             scroll = self.member_list.verticalScrollBar().value()
             self.member_list.clear()
-            for i in self.guild.members:
+            for i in sorted(list(self.guild.members), key=lambda x: x.guild_permissions, reverse=True):
                 item = QtGui.QListWidgetItem(str(i))
                 item.setData(QtCore.Qt.UserRole,i.id)
                 self.member_list.addItem(item)
