@@ -1,9 +1,11 @@
 import sys
 from PyQt4 import QtGui, QtCore
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
 import asyncio
 import discord
 import pyperclip
-class Window(QtGui.QMainWindow):
+class Window(QMainWindow):
 
     def __init__(self,client):
         super(Window, self).__init__()
@@ -30,12 +32,17 @@ class Window(QtGui.QMainWindow):
 
 
         main_menu_server = main_menu.addMenu('Server')
-
+        item = QtGui.QAction("Info", self)
+        item.triggered.connect(self.guild_info)
+        main_menu_server.addAction(item)
 
         main_menu_channel = main_menu.addMenu('Channel')
 
 
         main_menu_message = main_menu.addMenu('Message')
+        item = QtGui.QAction("Info", self)
+        item.triggered.connect(self.message_info)
+        main_menu_message.addAction(item)
         item = QtGui.QAction("Copy", self)
         item.triggered.connect(self.message_copy_content)
         main_menu_message.addAction(item)
@@ -47,58 +54,64 @@ class Window(QtGui.QMainWindow):
 
 
 
-        self.message_send_btn = QtGui.QPushButton("Send", self)
+        self.message_send_btn = QPushButton("Send", self)
         self.message_send_btn.resize(60,30)
         self.message_send_btn.move(980,670)
         self.message_send_btn.clicked.connect(self.send_message)
 
-        self.message_entry = QtGui.QLineEdit(self)
+        self.message_entry = QLineEdit(self)
         self.message_entry.resize(640,30)
         self.message_entry.move(340,670)
         self.message_entry.returnPressed.connect(self.send_message)
         self.message_entry.setFocus()
 
 
-        self.guild_list = QtGui.QListWidget(self)
+        self.guild_list = QListWidget(self)
         self.guild_list.resize(200,650)
         self.guild_list.move(0,50)
         self.guild_list.itemSelectionChanged.connect(self.select_guild)
 
 
-        self.channel_list = QtGui.QListWidget(self)
+        self.channel_list = QListWidget(self)
         self.channel_list.resize(140,650)
         self.channel_list.move(200,50)
         self.channel_list.itemSelectionChanged.connect(self.select_channel)
 
-        self.message_list = QtGui.QListWidget(self)
+        self.message_list = QListWidget(self)
         self.message_list.resize(700,620)
         self.message_list.move(340,50)
         self.message_list.itemSelectionChanged.connect(self.select_message)
         self.message_list.verticalScrollBar().rangeChanged.connect(self.scroll_to_bottom)
 
-        self.member_list = QtGui.QListWidget(self)
+        self.member_list = QListWidget(self)
         self.member_list.resize(160,650)
         self.member_list.move(1040,50)
         self.member_list.itemSelectionChanged.connect(self.select_member)
         self.member_list.verticalScrollBar().rangeChanged.connect(self.scroll_to_bottom)
 
-
-        self.message_label = QtGui.QLabel("None Selected",self)
+        self.message_label = QLabel("None Selected",self)
         self.message_label.move(340,25)
         self.message_label.resize(700,25)
         self.message_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.member_label = QtGui.QLabel("None Selected",self)
+        self.member_label = QLabel("None Selected",self)
         self.member_label.move(1040,25)
         self.member_label.resize(160,25)
         self.member_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.guild_label = QtGui.QLabel("None Selected",self)
+        self.guild_label = QLabel("None Selected",self)
         self.guild_label.move(0,25)
         self.guild_label.resize(200,25)
         self.guild_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.channel_label = QtGui.QLabel("None Selected",self)
+        self.channel_label = QLabel("None Selected",self)
         self.channel_label.move(200,25)
         self.channel_label.resize(140,25)
         self.channel_label.setAlignment(QtCore.Qt.AlignCenter)
+
+
+
+
+        self.message_send_btn.setDisabled(True)
+        self.message_entry.setDisabled(True)
+
 
         self.show()
 
@@ -144,8 +157,8 @@ class Window(QtGui.QMainWindow):
         scroll = self.guild_list.verticalScrollBar().value()
         self.guild_list.clear()
         for i in sorted(list(self.client.guilds), key=lambda x: x.name.lower()):
-            item = QtGui.QListWidgetItem(str(i.name))
-            item.setData(QtCore.Qt.UserRole,i.id)
+            item = QListWidgetItem(str(i.name))
+            item.setData(Qt.UserRole,i.id)
             self.guild_list.addItem(item)
 
         self.guild_list.verticalScrollBar().setValue(scroll)
@@ -177,6 +190,10 @@ class Window(QtGui.QMainWindow):
             for i in sorted(list(self.guild.members), key=lambda x: x.guild_permissions, reverse=True):
                 item = QtGui.QListWidgetItem(str(i))
                 item.setData(QtCore.Qt.UserRole,i.id)
+
+                item.setForeground(QtGui.QColor(i.colour.value))
+
+
                 self.member_list.addItem(item)
 
             self.member_list.verticalScrollBar().setValue(scroll)
@@ -222,7 +239,22 @@ class Window(QtGui.QMainWindow):
     def message_copy_id(self):
         if self.message != None:
             pyperclip.copy(str(self.messageid))
-
+    def message_info(self):
+       msg = QtGui.QMessageBox()
+       msg.setText("Message Info")
+       msg.setWindowTitle("Author: "+str(self.message.author))
+       msg.setInformativeText("ID: "+str(self.message.id))
+       msg.setDetailedText("Content: "+self.message.content+"\n\nTimestamp: "+str(self.message.created_at)+"\n\nPinned: "+str(self.message.pinned))
+       msg.setStandardButtons(QtGui.QMessageBox.Ok)
+       msg.exec_()
+    def guild_info(self):
+       msg = QtGui.QMessageBox()
+       msg.setText("Guild Info")
+       msg.setWindowTitle("Name: "+str(self.guild.name))
+       msg.setInformativeText("ID: "+str(self.guild.id))
+       msg.setDetailedText("Owner: "+str(self.guild.owner)+"\n\nMembers: "+str(len(self.guild.members))+"\n\nLarge: "+str(self.guild.large)+"\n\nChannels: "+str(len(self.guild.channels))+"\n\nCreated: "+str(self.guild.created_at))
+       msg.setStandardButtons(QtGui.QMessageBox.Ok)
+       msg.exec_()
 
 
     def ready(self):
