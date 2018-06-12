@@ -53,7 +53,7 @@ def run():
 app = QtGui.QApplication(sys.argv)
 window = gui.Window(client)
 
-token,ok = QtGui.QInputDialog.getText(window, "Token",
+token, ok = QtGui.QInputDialog.getText(window, "Token",
                 "Token:", QtGui.QLineEdit.Normal)
 
 
