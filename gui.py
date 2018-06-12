@@ -13,6 +13,12 @@ class Window(QMainWindow):
         super(Window, self).__init__()
         self.setFixedSize(1375, 770)
         self.setWindowTitle("Client")
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #1e1e1e;
+            }
+        """)
+
         self.client = client
         self.guild = None
         self.guildid = None
@@ -64,23 +70,70 @@ class Window(QMainWindow):
         self.guild_list = QListWidget(self)
         self.guild_list.resize(200, 700)
         self.guild_list.move(10, 60)
+        self.guild_list.setStyleSheet("""
+            .QListWidget {
+                background-color: #202225;
+                color: #ffffff;
+            }
+            QListWidget::item:selected
+            {
+                background: #0a0b0c;
+                color: #ffffff;
+            }
+        """)
+        self.guild_list.verticalScrollBar().setStyleSheet("QScrollBar:vertical { width: 0px; }")
+        self.guild_list.horizontalScrollBar().setStyleSheet("QScrollBar:horizontal { width: 0px; }")
         self.guild_list.itemSelectionChanged.connect(self.select_guild)
 
         self.channel_list = QListWidget(self)
         self.channel_list.resize(140, 700)
         self.channel_list.move(225, 60)
+        self.channel_list.setStyleSheet("""
+            .QListWidget {
+                background-color: #2f3136;
+                color: #ffffff;
+            }
+            QListWidget::item:selected
+            {
+                background: #212226;
+                color: #ffffff;
+            }
+        """)
+        self.channel_list.verticalScrollBar().setStyleSheet("QScrollBar:vertical { width: 0px; }")
+        self.channel_list.horizontalScrollBar().setStyleSheet("QScrollBar:horizontal { width: 0px; }")
         self.channel_list.itemSelectionChanged.connect(self.select_channel)
 
         self.message_list = QListWidget(self)
         self.message_list.resize(800, 650)
         self.message_list.move(380, 60)
         self.message_list.itemSelectionChanged.connect(self.select_message)
+        self.message_list.setStyleSheet("""
+            .QListWidget {
+                background-color: #36393e;
+                color: #ffffff;
+            }
+            QListWidget::item:selected
+            {
+                background: #222426;
+                color: #ffffff;
+            }
+        """)
+        self.message_list.verticalScrollBar().setStyleSheet("QScrollBar:vertical { width: 0px; }")
+        self.message_list.horizontalScrollBar().setStyleSheet("QScrollBar:horizontal { width: 0px; }")
         self.message_list.verticalScrollBar().rangeChanged.connect(self.scroll_to_bottom)
 
         self.member_list = QListWidget(self)
         self.member_list.resize(160, 700)
         self.member_list.move(1200, 60)
         self.member_list.itemSelectionChanged.connect(self.select_member)
+        self.member_list.setStyleSheet("""
+            .QListWidget {
+                background-color: #2f3136;
+                color: #ffffff;
+            }
+        """)
+        self.member_list.verticalScrollBar().setStyleSheet("QScrollBar:vertical { width: 0px; }")
+        self.member_list.horizontalScrollBar().setStyleSheet("QScrollBar:horizontal { width: 0px; }")
         self.member_list.verticalScrollBar().rangeChanged.connect(self.scroll_to_bottom)
 
         self.message_send_btn.setDisabled(True)
