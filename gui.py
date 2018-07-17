@@ -247,12 +247,14 @@ class Window(QMainWindow):
             self.guild = self.client.get_guild(self.guildid)
             scroll = self.member_list.verticalScrollBar().value()
             self.member_list.clear()
-            for i in sorted(list(self.guild.members), key=lambda x: x.guild_permissions, reverse=True):
+            for i in sorted(list(self.guild.members), key=lambda x: x.roles[-1], reverse=True):
                 item = QtGui.QListWidgetItem(str(i))
                 item.setData(QtCore.Qt.UserRole,i.id)
 
-                item.setForeground(QtGui.QColor(i.colour.value))
-
+                if i.colour.value != 0:
+                    item.setForeground(QtGui.QColor(i.colour.value))
+                else:
+                    item.setForeground(QtGui.QColor(14606046))
 
                 self.member_list.addItem(item)
 
