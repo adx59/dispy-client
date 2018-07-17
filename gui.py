@@ -5,12 +5,20 @@ from PyQt4.QtCore import *
 import asyncio
 import discord
 import pyperclip
+
+
 class Window(QMainWindow):
 
-    def __init__(self,client):
+    def __init__(self, client):
         super(Window, self).__init__()
         self.setFixedSize(1200, 700)
         self.setWindowTitle("Client")
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #1e1e1e;
+            }
+        """)
+
         self.client = client
         self.guild = None
         self.guildid = None
@@ -72,25 +80,64 @@ class Window(QMainWindow):
         self.guild_list.resize(200,650)
         self.guild_list.move(0,50)
         self.guild_list.itemSelectionChanged.connect(self.select_guild)
-
+        self.guild_list.setStyleSheet("""
+            .QListWidget {
+                background-color: #202225;
+                color: #ffffff;
+            }
+            QListWidget::item:selected
+            {
+                background: #0a0b0c;
+                color: #ffffff;
+            }
+        """)
 
         self.channel_list = QListWidget(self)
         self.channel_list.resize(140,650)
         self.channel_list.move(200,50)
         self.channel_list.itemSelectionChanged.connect(self.select_channel)
+        self.channel_list.setStyleSheet("""
+            .QListWidget {
+                background-color: #2f3136;
+                color: #ffffff;
+            }
+            QListWidget::item:selected
+            {
+                background: #212226;
+                color: #ffffff;
+            }
+        """)
 
         self.message_list = QListWidget(self)
         self.message_list.resize(700,620)
         self.message_list.move(340,50)
         self.message_list.itemSelectionChanged.connect(self.select_message)
         self.message_list.verticalScrollBar().rangeChanged.connect(self.scroll_to_bottom)
+        self.message_list.setStyleSheet("""
+            .QListWidget {
+                background-color: #36393e;
+                color: #ffffff;
+            }
+            QListWidget::item:selected
+            {
+                background: #222426;
+                color: #ffffff;
+            }
+        """)
+
 
         self.member_list = QListWidget(self)
         self.member_list.resize(160,650)
         self.member_list.move(1040,50)
         self.member_list.itemSelectionChanged.connect(self.select_member)
         self.member_list.verticalScrollBar().rangeChanged.connect(self.scroll_to_bottom)
-
+        self.member_list.setStyleSheet("""
+            .QListWidget {
+                background-color: #2f3136;
+                color: #ffffff;
+            }
+        """)
+        
         self.message_label = QLabel("None Selected",self)
         self.message_label.move(340,25)
         self.message_label.resize(700,25)
