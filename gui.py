@@ -66,15 +66,17 @@ class Window(QMainWindow):
 
         self.message_send_btn = QPushButton("Send", self)
         self.message_send_btn.resize(60,30)
-        self.message_send_btn.move(980,670)
+        self.message_send_btn.move(979,670)
         self.message_send_btn.clicked.connect(self.send_message)
+        self.message_send_btn.setStyleSheet("color: #dedede; background-color: #222222; border: 1px solid #1e1e1e;")
+
 
         self.message_entry = QLineEdit(self)
-        self.message_entry.resize(640,30)
-        self.message_entry.move(340,670)
+        self.message_entry.resize(638,30)
+        self.message_entry.move(341,670)
         self.message_entry.returnPressed.connect(self.send_message)
         self.message_entry.setFocus()
-
+        self.message_entry.setStyleSheet("color: #dedede; background-color: #2f3136; border: 1px solid #1e1e1e;")
 
         self.guild_list = QListWidget(self)
         self.guild_list.resize(200,650)
@@ -83,12 +85,12 @@ class Window(QMainWindow):
         self.guild_list.setStyleSheet("""
             .QListWidget {
                 background-color: #202225;
-                color: #ffffff;
+                color: #dedede;
             }
             QListWidget::item:selected
             {
-                background: #0a0b0c;
-                color: #ffffff;
+                background: #0a0a0a;
+                color: #dedede;
             }
         """)
 
@@ -99,12 +101,12 @@ class Window(QMainWindow):
         self.channel_list.setStyleSheet("""
             .QListWidget {
                 background-color: #2f3136;
-                color: #ffffff;
+                color: #dedede;
             }
             QListWidget::item:selected
             {
-                background: #212226;
-                color: #ffffff;
+                background: #0a0a0a;
+                color: #dedede;
             }
         """)
 
@@ -116,12 +118,12 @@ class Window(QMainWindow):
         self.message_list.setStyleSheet("""
             .QListWidget {
                 background-color: #36393e;
-                color: #ffffff;
+                color: #dedede;
             }
             QListWidget::item:selected
             {
-                background: #222426;
-                color: #ffffff;
+                background: #0a0a0a;
+                color: #dedede;
             }
         """)
 
@@ -134,26 +136,35 @@ class Window(QMainWindow):
         self.member_list.setStyleSheet("""
             .QListWidget {
                 background-color: #2f3136;
-                color: #ffffff;
+                color: #dedede;
+            }
+            QListWidget::item:selected
+            {
+                background: #0a0a0a;
+                color: #dedede;
             }
         """)
-        
+
         self.message_label = QLabel("None Selected",self)
         self.message_label.move(340,25)
         self.message_label.resize(700,25)
         self.message_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.message_label.setStyleSheet("color: #dedede")
         self.member_label = QLabel("None Selected",self)
         self.member_label.move(1040,25)
         self.member_label.resize(160,25)
         self.member_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.member_label.setStyleSheet("color: #dedede")
         self.guild_label = QLabel("None Selected",self)
         self.guild_label.move(0,25)
         self.guild_label.resize(200,25)
         self.guild_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.guild_label.setStyleSheet("color: #dedede")
         self.channel_label = QLabel("None Selected",self)
         self.channel_label.move(200,25)
         self.channel_label.resize(140,25)
         self.channel_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.channel_label.setStyleSheet("color: #dedede")
 
 
 
